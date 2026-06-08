@@ -7,24 +7,35 @@ use App\Models\Order;
 use App\Models\OrderPhoto;
 use App\Models\OrderTimeline;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
         $request->validate([
-            'tailor_id' => 'required|exists:users,id',
+            'tailor_id' => ['required', Rule::exists('users', 'id')->where('role', 'tailor')->where('is_verified', true)],
             'category' => 'required|string|max:100',
             'description' => 'required|string|max:500',
-            'photos' => 'required|array|min:1|max:5',
+            'photos' => 'nullable|array|max:5',
             'photos.*' => 'required|string',
             'deadline' => 'required|date|after_or_equal:today',
-            'delivery_mode' => 'required|in:dropoff,pickup',
+            'delivery_mode' => 'required|string',
         ]);
 
-        $estimation = $this->estimateFromMl($request->photos, $request->category, $request->description);
+        $photos = $request->input('photos', []);
+        $deliveryMode = $this->normalizeDeliveryMode($request->delivery_mode);
+        if ($deliveryMode === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Mode pengiriman tidak valid.',
+                'data' => null,
+            ], 422);
+        }
+
+        $estimation = $this->estimateFromMl($photos, $request->category, $request->description);
 
         $order = Order::create([
             'customer_id' => $request->user()->id,
@@ -32,22 +43,25 @@ class OrderController extends Controller
             'category' => $request->category,
             'description' => $request->description,
             'deadline' => $request->deadline,
-            'delivery_mode' => $request->delivery_mode,
+            'delivery_mode' => $deliveryMode,
             'status' => 'waiting_confirmation',
             'estimated_price_min' => $estimation['min_price'],
             'estimated_price_max' => $estimation['max_price'],
             'confidence' => $estimation['confidence'],
         ]);
 
-        foreach ($request->photos as $photo) {
-            OrderPhoto::create(['order_id' => $order->id, 'path' => $photo]);
+        if (is_array($photos) && count($photos) > 0) {
+            foreach ($photos as $photo) {
+                $photoPath = $this->storeOrderPhoto($photo, $order->id);
+                OrderPhoto::create(['order_id' => $order->id, 'path' => $photoPath]);
+            }
         }
 
         MlEstimation::create([
             'order_id' => $order->id,
             'category' => $request->category,
             'description' => $request->description,
-            'photos' => $request->photos,
+            'photos' => is_array($photos) ? $photos : [],
             'min_price' => $estimation['min_price'],
             'max_price' => $estimation['max_price'],
             'confidence' => $estimation['confidence'],
@@ -63,11 +77,33 @@ class OrderController extends Controller
         ], 201);
     }
 
+    protected function storeOrderPhoto(string $photo, int $orderId): string
+    {
+        if (preg_match('/^data:image\/(\w+);base64,(.+)$/', $photo, $matches)) {
+            $extension = strtolower($matches[1]);
+            $base64Data = $matches[2];
+            $imageData = base64_decode($base64Data);
+
+            if ($imageData === false) {
+                throw new \RuntimeException('Data foto tidak valid.');
+            }
+
+            $filename = sprintf('order_photos/order_%s_%s.%s', $orderId, uniqid(), $extension);
+            Storage::disk('public')->put($filename, $imageData);
+
+            return $filename;
+        }
+
+        return $photo;
+    }
+
     public function index(Request $request)
     {
         $query = Order::query();
 
-        if ($request->user()->isCustomer()) {
+        if ($request->user()->isAdmin()) {
+            // Admin can see all orders.
+        } elseif ($request->user()->isCustomer()) {
             $query->where('customer_id', $request->user()->id);
         } else {
             $query->where('tailor_id', $request->user()->id);
@@ -77,12 +113,27 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->filled('tailor_id')) {
+            $query->where('tailor_id', $request->tailor_id);
+        }
+
         $orders = $query->with(['photos', 'customer', 'tailor'])->paginate(20);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Daftar pesanan berhasil diambil.',
-            'data' => ['orders' => $orders],
+            'data' => [
+                'orders' => $orders->items(),
+                'meta' => [
+                    'current_page' => $orders->currentPage(),
+                    'per_page' => $orders->perPage(),
+                    'total' => $orders->total(),
+                ],
+            ],
         ]);
     }
 
@@ -90,11 +141,11 @@ class OrderController extends Controller
     {
         $user = request()->user();
 
-        if ($user->id !== $id->customer_id && $user->id !== $id->tailor_id) {
+        if (!$user->isAdmin() && $user->id !== $id->customer_id && $user->id !== $id->tailor_id) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.', 'data' => null], 403);
         }
 
-        $order = $id->load(['photos', 'timelines', 'payments', 'review']);
+        $order = $id->load(['photos', 'timelines', 'payments', 'review', 'customer', 'tailor']);
 
         return response()->json([
             'status' => 'success',
@@ -107,8 +158,8 @@ class OrderController extends Controller
     {
         $request->validate(['agreed_price' => 'required|numeric|min:0']);
 
-        if ($request->user()->id !== $id->customer_id) {
-            return response()->json(['status' => 'error', 'message' => 'Akses ditolak.', 'data' => null], 403);
+        if ($request->user()->id !== $id->customer_id || $id->status !== 'waiting_confirmation') {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan tidak dapat dikonfirmasi.', 'data' => null], 403);
         }
 
         $id->update(['agreed_price' => $request->agreed_price, 'status' => 'confirmed']);
@@ -128,9 +179,25 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.', 'data' => null], 403);
         }
 
+        if ($id->status !== 'waiting_confirmation' && $id->status !== 'confirmed') {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan tidak dapat diterima pada status ini.', 'data' => null], 403);
+        }
+
+        $finalPrice = $request->final_price;
+        $notes = $request->notes;
+        $maximumAllowed = $id->estimated_price_max * 1.2;
+
+        if ($finalPrice > $maximumAllowed && empty($notes)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Jika harga final melebihi 20% dari estimasi maksimum, catatan wajib diisi.',
+                'data' => null,
+            ], 422);
+        }
+
         $id->update([
-            'final_price' => $request->final_price,
-            'tailor_notes' => $request->notes,
+            'final_price' => $finalPrice,
+            'tailor_notes' => $notes,
             'status' => 'accepted',
             'accepted_at' => now(),
         ]);
@@ -138,6 +205,30 @@ class OrderController extends Controller
         OrderTimeline::create(['order_id' => $id->id, 'status' => 'accepted', 'notes' => 'Penjahit menerima pesanan.']);
 
         return response()->json(['status' => 'success', 'message' => 'Pesanan diterima.', 'data' => ['order' => $id]]);
+    }
+
+    public function reject(Request $request, Order $id)
+    {
+        $request->validate([
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        if ($request->user()->id !== $id->tailor_id) {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak.', 'data' => null], 403);
+        }
+
+        if ($id->status !== 'waiting_confirmation' && $id->status !== 'confirmed') {
+            return response()->json(['status' => 'error', 'message' => 'Pesanan tidak dapat ditolak pada status ini.', 'data' => null], 403);
+        }
+
+        $id->update([
+            'status' => 'cancelled',
+            'tailor_notes' => $request->notes,
+        ]);
+
+        OrderTimeline::create(['order_id' => $id->id, 'status' => 'cancelled', 'notes' => 'Penjahit menolak pesanan.']);
+
+        return response()->json(['status' => 'success', 'message' => 'Pesanan ditolak.', 'data' => ['order' => $id]]);
     }
 
     public function updateStatus(Request $request, Order $id)
@@ -182,9 +273,12 @@ class OrderController extends Controller
 
     private function estimateFromMl(array $photos, string $category, string $description): array
     {
-        $base = match ($category) {
+        $normalizedCategory = Str::lower(trim($category));
+        $base = match ($normalizedCategory) {
             'ubah ukuran' => 70000,
             'ganti ritsleting' => 50000,
+            'ganti ritsleting' => 50000,
+            'tambal' => 80000,
             'tambah' => 80000,
             'sulam' => 65000,
             default => 60000,
@@ -203,5 +297,16 @@ class OrderController extends Controller
                 'note' => 'Estimasi dasar berdasarkan jenis layanan dan jumlah foto.',
             ],
         ];
+    }
+
+    private function normalizeDeliveryMode(string $deliveryMode): ?string
+    {
+        $normalized = Str::lower(trim($deliveryMode));
+
+        return match ($normalized) {
+            'antar ke toko', 'dropoff' => 'dropoff',
+            'pickup oleh kurir mitra penjahit', 'pickup' => 'pickup',
+            default => null,
+        };
     }
 }

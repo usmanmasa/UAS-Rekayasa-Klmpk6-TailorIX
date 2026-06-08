@@ -26,7 +26,7 @@ class PaymentController extends Controller
             'payment_method' => $request->payment_method,
             'payment_type' => $request->payment_type,
             'status' => 'pending',
-            'transaction_id' => null,
+            'transaction_id' => 'trx_' . uniqid(),
             'snap_token' => 'mock_snap_token_' . uniqid(),
             'redirect_url' => url('/payment/redirect/' . uniqid()),
         ]);

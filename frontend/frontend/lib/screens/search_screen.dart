@@ -13,6 +13,8 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
+  String? _selectedCategory;
+  double _minRating = 0;
   Future<List<Tailor>>? _searchFuture;
 
   @override
@@ -23,7 +25,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _search() {
     setState(() {
-      _searchFuture = ApiService.fetchTailors(query: _searchController.text);
+      _searchFuture = ApiService.fetchTailors(
+        query: _searchController.text,
+        category: _selectedCategory,
+        minRating: _minRating > 0 ? _minRating : null,
+      );
     });
   }
 
@@ -46,6 +52,47 @@ class _SearchScreenState extends State<SearchScreen> {
                 }),
               ),
               onChanged: (_) => _search(),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String?>(
+                    initialValue: _selectedCategory,
+                    decoration: const InputDecoration(labelText: 'Filter Kategori'),
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text('Semua kategori')),
+                      DropdownMenuItem(value: 'Ubah Ukuran', child: Text('Ubah Ukuran')),
+                      DropdownMenuItem(value: 'Ganti Ritsleting', child: Text('Ganti Ritsleting')),
+                      DropdownMenuItem(value: 'Tambal', child: Text('Tambal')),
+                      DropdownMenuItem(value: 'Sulam', child: Text('Sulam')),
+                      DropdownMenuItem(value: 'Lainnya', child: Text('Lainnya')),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedCategory = value);
+                      _search();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<double?>(
+                    initialValue: _minRating > 0 ? _minRating : null,
+                    decoration: const InputDecoration(labelText: 'Rating minimal'),
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text('Semua')),
+                      DropdownMenuItem(value: 3.0, child: Text('>= 3.0')),
+                      DropdownMenuItem(value: 4.0, child: Text('>= 4.0')),
+                      DropdownMenuItem(value: 4.5, child: Text('>= 4.5')),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _minRating = value ?? 0);
+                      _search();
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Expanded(

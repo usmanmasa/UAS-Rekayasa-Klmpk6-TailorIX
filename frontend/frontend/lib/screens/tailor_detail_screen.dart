@@ -30,6 +30,45 @@ class TailorDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber[700], size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        tailor.rating.toStringAsFixed(1),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 6),
+                      Text('(${tailor.reviewsCount} ulasan)', style: const TextStyle(color: Colors.black54)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 18, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Text('${tailor.city} • ${tailor.distanceKm.toStringAsFixed(1)} km', style: const TextStyle(color: Colors.black54)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             Text(tailor.description, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             Wrap(

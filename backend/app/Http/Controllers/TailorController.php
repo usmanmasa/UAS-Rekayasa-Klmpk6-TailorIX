@@ -13,6 +13,16 @@ class TailorController extends Controller
     {
         $query = User::query()->where('role', 'tailor')->where('is_verified', true);
 
+        if ($request->filled('q')) {
+            $keyword = '%' . $request->q . '%';
+            $query->where(function ($sub) use ($keyword) {
+                $sub->where('name', 'like', $keyword)
+                    ->orWhere('shop_name', 'like', $keyword)
+                    ->orWhere('city', 'like', $keyword)
+                    ->orWhereJsonContains('specializations', $request->q);
+            });
+        }
+
         if ($request->filled('category')) {
             $query->whereJsonContains('specializations', $request->category);
         }
@@ -41,7 +51,14 @@ class TailorController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Daftar penjahit berhasil diambil.',
-            'data' => ['tailors' => $tailors],
+            'data' => [
+                'tailors' => $tailors->items(),
+                'meta' => [
+                    'current_page' => $tailors->currentPage(),
+                    'per_page' => $tailors->perPage(),
+                    'total' => $tailors->total(),
+                ],
+            ],
         ]);
     }
 

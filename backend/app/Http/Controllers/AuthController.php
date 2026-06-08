@@ -19,17 +19,30 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:30|unique:users',
-            'role' => 'required|in:customer,tailor',
+            'address' => 'sometimes|nullable|string|max:255',
+            'shop_name' => 'sometimes|nullable|string|max:255',
+            'role' => 'required|in:customer,tailor,admin',
+            'terms_accepted' => 'accepted',
         ]);
 
-        $user = User::create([
+        $userData = [
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'phone' => $data['phone'],
             'role' => $data['role'],
+            'address' => $data['address'] ?? null,
+            'shop_name' => $data['shop_name'] ?? null,
             'is_verified' => $data['role'] === 'customer',
-        ]);
+            'terms_accepted' => true,
+            'terms_accepted_at' => now(),
+        ];
+
+        if ($data['role'] === 'admin') {
+            $userData['is_verified'] = true;
+        }
+
+        $user = User::create($userData);
 
         event(new Registered($user));
 
@@ -69,6 +82,7 @@ class AuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'Bearer',
+                'user' => $user,
             ],
         ]);
     }

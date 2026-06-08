@@ -12,9 +12,11 @@ class TailorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 2,
+      shadowColor: Colors.green.shade100,
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(18),
@@ -22,13 +24,13 @@ class TailorCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 32,
-                backgroundColor: Colors.indigo.shade50,
+                backgroundColor: const Color(0xFFE8F6EA),
                 child: Text(
-                  tailor.name[0],
-                  style: TextStyle(
+                  tailor.name[0].toUpperCase(),
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.indigo.shade900,
+                    color: Color(0xFF239B56),
                   ),
                 ),
               ),
@@ -60,14 +62,14 @@ class TailorCard extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.indigo.shade50,
+                            color: const Color(0xFFE8F6EA),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.star,
-                                color: Colors.amber[700],
+                                color: Color(0xFF239B56),
                                 size: 14,
                               ),
                               const SizedBox(width: 6),
@@ -76,6 +78,7 @@ class TailorCard extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
+                                  color: Color(0xFF239B56),
                                 ),
                               ),
                             ],

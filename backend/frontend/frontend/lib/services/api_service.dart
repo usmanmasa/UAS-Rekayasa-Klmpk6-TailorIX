@@ -8,7 +8,7 @@ import '../models/tailor.dart';
 import '../models/user.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
   static String? accessToken;
   static User? currentUser;
 
@@ -78,19 +78,31 @@ class ApiService {
     String name,
     String email,
     String phone,
-    String password,
-  ) async {
+    String password, {
+    String role = 'customer',
+    String? address,
+    String? shopName,
+  }) async {
     try {
+      final payload = {
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'password_confirmation': password,
+        'role': role,
+      };
+      if (address != null && address.isNotEmpty) {
+        payload['address'] = address;
+      }
+      if (shopName != null && shopName.isNotEmpty) {
+        payload['shop_name'] = shopName;
+      }
+
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
         headers: headers(),
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'phone': phone,
-          'password': password,
-          'role': 'customer',
-        }),
+        body: jsonEncode(payload),
       );
 
       final body = jsonDecode(response.body) as Map<String, dynamic>;

@@ -13,17 +13,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _shopNameController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _role = 'customer';
   String? _error;
 
   Future<void> _register() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final phone = _phoneController.text.trim();
+    final address = _addressController.text.trim();
+    final shopName = _shopNameController.text.trim();
     final password = _passwordController.text.trim();
     setState(() => _error = null);
     try {
-      await ApiService.register(name, email, phone, password);
+      await ApiService.register(
+        name,
+        email,
+        phone,
+        password,
+        role: _role,
+        address: address.isNotEmpty ? address : null,
+        shopName: _role == 'tailor' ? shopName : null,
+      );
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/app');
     } catch (error) {
@@ -56,6 +69,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: const InputDecoration(labelText: 'Nomor HP', prefixIcon: Icon(Icons.phone)),
                 keyboardType: TextInputType.phone,
               ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _addressController,
+                decoration: const InputDecoration(labelText: 'Alamat', prefixIcon: Icon(Icons.home)),
+                keyboardType: TextInputType.streetAddress,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _role,
+                decoration: const InputDecoration(labelText: 'Daftar sebagai', prefixIcon: Icon(Icons.person)),
+                items: const [
+                  DropdownMenuItem(value: 'customer', child: Text('Pelanggan')),
+                  DropdownMenuItem(value: 'tailor', child: Text('Penjahit')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _role = value ?? 'customer';
+                  });
+                },
+              ),
+              if (_role == 'tailor') ...[
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _shopNameController,
+                  decoration: const InputDecoration(labelText: 'Nama Toko / Studio', prefixIcon: Icon(Icons.store)),
+                ),
+              ],
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordController,

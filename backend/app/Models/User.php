@@ -35,6 +35,8 @@ class User extends Authenticatable
         'rating_count',
         'verification_document_url',
         'is_verified',
+        'terms_accepted',
+        'terms_accepted_at',
     ];
 
     /**
@@ -59,6 +61,8 @@ class User extends Authenticatable
         'portfolio' => 'array',
         'is_available' => 'boolean',
         'is_verified' => 'boolean',
+        'terms_accepted' => 'boolean',
+        'terms_accepted_at' => 'datetime',
         'rating' => 'decimal:2',
     ];
 
@@ -100,5 +104,10 @@ class User extends Authenticatable
     public function isCustomer(): bool
     {
         return $this->role === 'customer';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

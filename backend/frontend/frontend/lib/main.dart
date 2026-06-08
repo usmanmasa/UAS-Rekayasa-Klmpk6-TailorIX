@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'screens/app_shell.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -8,6 +7,7 @@ import 'screens/order_detail_screen.dart';
 import 'screens/order_form_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/review_screen.dart';
+import 'screens/role_based_app_shell.dart';
 import 'screens/splash_screen.dart';
 import 'screens/tailor_detail_screen.dart';
 
@@ -84,7 +84,7 @@ class TailoriXApp extends StatelessWidget {
         '/onboarding': (_) => const OnboardingScreen(),
         '/login': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
-        '/app': (_) => const AppShell(),
+        '/app': (_) => const RoleBasedAppShell(),
         '/tailor-detail': (_) => const TailorDetailScreen(),
         '/order-form': (_) => const OrderFormScreen(),
         '/order-detail': (_) => const OrderDetailScreen(),
