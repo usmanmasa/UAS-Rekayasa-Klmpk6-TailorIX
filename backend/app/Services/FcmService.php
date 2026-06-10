@@ -46,4 +46,19 @@ class FcmService
             ]);
         }
     }
+
+    public static function sendToAdmin(string $title, string $body, array $data = []): void
+    {
+        $admins = \App\Models\User::where('role', 'admin')
+            ->whereNotNull('device_token')
+            ->pluck('device_token')
+            ->toArray();
+
+        $tokens = array_values(array_filter(array_map('trim', $admins)));
+        if (empty($tokens)) {
+            return;
+        }
+
+        self::send($tokens, $title, $body, $data);
+    }
 }

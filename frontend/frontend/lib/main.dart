@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'models/order.dart';
 import 'services/api_service.dart';
@@ -30,11 +31,17 @@ Future<void> main() async {
   
   if (!kIsWeb) {
     await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await FcmService.initialize();
   }
   
   await _initializeFirebaseMessaging();
   runApp(const TailoriXApp());
+}
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
 }
 
 Future<void> _initializeFirebaseMessaging() async {
