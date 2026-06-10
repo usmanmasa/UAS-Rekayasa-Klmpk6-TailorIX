@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Penjahit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,11 +32,11 @@ class Order extends Model
         'deadline' => 'date',
         'accepted_at' => 'datetime',
         'cancelled_at' => 'datetime',
-        'estimated_price_min' => 'decimal:2',
-        'estimated_price_max' => 'decimal:2',
-        'agreed_price' => 'decimal:2',
-        'final_price' => 'decimal:2',
-        'confidence' => 'decimal:2',
+        'estimated_price_min' => 'float',
+        'estimated_price_max' => 'float',
+        'agreed_price' => 'float',
+        'final_price' => 'float',
+        'confidence' => 'float',
     ];
 
     public function customer()
@@ -45,7 +46,7 @@ class Order extends Model
 
     public function tailor()
     {
-        return $this->belongsTo(User::class, 'tailor_id');
+        return $this->belongsTo(Penjahit::class, 'tailor_id');
     }
 
     public function photos()

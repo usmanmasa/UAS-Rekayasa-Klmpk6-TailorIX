@@ -23,9 +23,9 @@ class MlEstimation extends Model
     protected $casts = [
         'photos' => 'array',
         'analysis' => 'array',
-        'min_price' => 'decimal:2',
-        'max_price' => 'decimal:2',
-        'confidence' => 'decimal:2',
+        'min_price' => 'float',
+        'max_price' => 'float',
+        'confidence' => 'float',
     ];
 
     public function order()

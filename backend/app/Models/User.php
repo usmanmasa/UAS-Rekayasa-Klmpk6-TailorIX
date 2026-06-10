@@ -29,6 +29,7 @@ class User extends Authenticatable
         'location_lat',
         'location_lng',
         'specializations',
+        'device_token',
         'portfolio',
         'is_available',
         'rating',

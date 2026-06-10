@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/order.dart';
 import '../services/api_service.dart';
+import 'customer_waiting_screen.dart';
+import 'tailor_order_confirmation_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   const OrderDetailScreen({super.key});
@@ -164,6 +166,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final currentIndex = OrderDetailScreen._statusSteps.indexOf(order.status);
     final isTailor = ApiService.currentUser?.role == 'tailor';
 
+    if (order.status == 'waiting_confirmation') {
+      if (isTailor) {
+        return TailorOrderConfirmationScreen(order: order);
+      }
+      return CustomerWaitingScreen(order: order);
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Detail Pesanan')),
       body: Padding(
@@ -217,6 +226,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             Text('Estimasi Harga: ${order.estimatedPriceLabel}'),
             Text('Harga Final: Rp ${order.finalPrice > 0 ? order.finalPrice.toStringAsFixed(0) : order.estimatedPrice.toStringAsFixed(0)}'),
             const SizedBox(height: 24),
+            if (order.status == 'waiting_confirmation')
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Pesanan sedang menunggu konfirmasi penjahit. Silakan tunggu atau hubungi penjahit Anda jika perlu.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
+            if (order.status == 'confirmed')
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Pesanan telah dikonfirmasi oleh pelanggan. Tunggu penjahit menyelesaikan proses berikutnya.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
             const Text('Timeline Pesanan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (order.timelines.isEmpty) ...[
@@ -277,10 +318,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     ),
                   ],
                 ),
-              if (order.status != 'completed' && order.status != 'cancelled')
+              if (order.status == 'accepted' || order.status == 'process' || order.status == 'ready_for_pickup')
                 ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/payment', arguments: order),
                   child: const Text('Bayar / Lihat Pembayaran'),
+                ),
+              if (order.status == 'waiting_confirmation' && !isTailor)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    'Penjahit Anda akan menerima atau menolak pesanan ini dalam beberapa saat.',
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
                 ),
               if (order.status == 'completed' && !isTailor)
                 ElevatedButton(

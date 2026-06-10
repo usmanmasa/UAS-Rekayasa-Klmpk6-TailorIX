@@ -28,9 +28,10 @@ class MlController extends Controller
             'status' => 'success',
             'message' => 'Estimasi ML berhasil dibuat.',
             'data' => [
-                'min_price' => $record->min_price,
-                'max_price' => $record->max_price,
-                'confidence' => $record->confidence,
+                'id' => $record->id,
+                'min_price' => (float) $record->min_price,
+                'max_price' => (float) $record->max_price,
+                'confidence' => (float) $record->confidence,
                 'analysis' => $record->analysis,
             ],
         ]);
@@ -75,9 +76,9 @@ class MlController extends Controller
         $confidence = min(95, 70 + count($photos) * 5);
 
         return [
-            'min_price' => round($min, 2),
-            'max_price' => round($max, 2),
-            'confidence' => round($confidence, 2),
+            'min_price' => (float) round($min, 2),
+            'max_price' => (float) round($max, 2),
+            'confidence' => (float) round($confidence, 2),
             'analysis' => [
                 'category' => $category,
                 'photo_count' => count($photos),

@@ -20,6 +20,7 @@ class ProfileController extends Controller
             'portfolio' => 'sometimes|array',
             'location_lat' => 'sometimes|numeric',
             'location_lng' => 'sometimes|numeric',
+            'device_token' => 'sometimes|string|max:1000',
         ]);
 
         $user->update($data);
@@ -28,6 +29,22 @@ class ProfileController extends Controller
             'status' => 'success',
             'message' => 'Profil berhasil diperbarui.',
             'data' => ['user' => $user],
+        ]);
+    }
+
+    public function updateDeviceToken(Request $request)
+    {
+        $request->validate([
+            'device_token' => 'required|string|max:1000',
+        ]);
+
+        $user = $request->user();
+        $user->update(['device_token' => $request->device_token]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Device token berhasil disimpan.',
+            'data' => ['device_token' => $user->device_token],
         ]);
     }
 }

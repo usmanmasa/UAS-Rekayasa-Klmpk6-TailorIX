@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RefundRequest;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -72,7 +73,19 @@ class PaymentController extends Controller
         $payment->update(['status' => $request->status]);
 
         if ($request->status === 'settlement') {
-            $payment->order->update(['status' => 'confirmed']);
+            $order = $payment->order;
+            $order->update(['status' => 'confirmed']);
+            $order->load(['customer', 'tailor']);
+
+            if ($order->tailor && ! empty($order->tailor->device_token)) {
+                $tokens = array_filter(array_map('trim', explode(',', $order->tailor->device_token)));
+                FcmService::send(
+                    $tokens,
+                    'DP Terbayar',
+                    "Pembayaran DP untuk pesanan {$order->id} telah berhasil.",
+                    ['order_id' => $order->id],
+                );
+            }
         }
 
         return response()->json(['status' => 'success', 'message' => 'Webhook diproses.']);

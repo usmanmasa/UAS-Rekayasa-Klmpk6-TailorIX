@@ -7,9 +7,12 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PenjahitController;
 use App\Http\Controllers\TailorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/penjahit', [PenjahitController::class, 'index']);
 
 Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
@@ -23,6 +26,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/refresh', [AuthController::class, 'refresh']);
         Route::put('/profile', [ProfileController::class, 'update']);
+        Route::patch('/profile/device-token', [ProfileController::class, 'updateDeviceToken']);
 
         Route::get('/tailors', [TailorController::class, 'index']);
         Route::get('/tailors/{id}', [TailorController::class, 'show']);
@@ -42,6 +46,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/summary', [AdminController::class, 'summary']);
             Route::get('/users', [AdminController::class, 'users']);
             Route::get('/users/{id}', [AdminController::class, 'showUser']);
+            Route::put('/users/{id}', [AdminController::class, 'updateUser']);
+            Route::delete('/users/{id}', [AdminController::class, 'destroyUser']);
+            Route::get('/tailors', [AdminController::class, 'tailors']);
+            Route::post('/tailors', [AdminController::class, 'storeTailor']);
+            Route::put('/tailors/{id}', [AdminController::class, 'updateTailor']);
+            Route::delete('/tailors/{id}', [AdminController::class, 'destroyTailor']);
             Route::get('/orders', [AdminController::class, 'orders']);
         });
 

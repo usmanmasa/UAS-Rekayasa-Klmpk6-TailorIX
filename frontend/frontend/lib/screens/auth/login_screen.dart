@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../services/api_service.dart';
+import '../../services/fcm_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +22,18 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _error = null);
     try {
       await ApiService.login(email, password);
+      
+      if (!kIsWeb) {
+        final fcmToken = await FcmService.getToken();
+        if (fcmToken != null && fcmToken.isNotEmpty) {
+          try {
+            await ApiService.updateDeviceToken(fcmToken);
+          } catch (_) {
+            // ignore errors here; token update will succeed on next app restart or refresh
+          }
+        }
+      }
+      
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/app');
     } catch (error) {

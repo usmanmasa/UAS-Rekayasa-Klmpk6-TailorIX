@@ -9,6 +9,7 @@ import '../models/user.dart';
 
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
+  static const String publicBaseUrl = 'http://127.0.0.1:8000/api';
   static String? accessToken;
   static User? currentUser;
 
@@ -159,17 +160,15 @@ class ApiService {
     try {
       final queryParameters = <String, String>{};
       if (query.isNotEmpty) queryParameters['q'] = query;
-      if (category != null && category.isNotEmpty)
-        queryParameters['category'] = category;
-      if (minRating != null)
-        queryParameters['min_rating'] = minRating.toString();
-      final uri = Uri.parse('$baseUrl/tailors').replace(
+      if (category != null && category.isNotEmpty) queryParameters['category'] = category;
+      if (minRating != null) queryParameters['min_rating'] = minRating.toString();
+      final uri = Uri.parse('$publicBaseUrl/penjahit').replace(
         queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
       final response = await http.get(uri, headers: headers());
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200 && body['status'] == 'success') {
-        final rawTailors = body['data']['tailors'];
+        final rawTailors = body['data']['penjahits'];
         final list = rawTailors is List
             ? rawTailors
             : (rawTailors['data'] as List<dynamic>? ?? []);
@@ -183,32 +182,105 @@ class ApiService {
         return [
           Tailor(
             id: 'demo-1',
-            name: 'Rina',
-            shopName: 'Rina Tailor',
-            city: 'Jakarta',
-            specializations: ['Permak', 'Alterasi'],
+            name: 'Sari',
+            shopName: 'Bu Sari Taylor',
+            city: 'Bandung, Jl. Sudirman',
+            specializations: ['Permak', 'Alterasi', 'Jas'],
             rating: 4.8,
             isAvailable: true,
-            reviewsCount: 125,
-            distanceKm: 1.4,
+            reviewsCount: 145,
+            distanceKm: 1.2,
+            locationLat: -6.9175,
+            locationLng: 107.6191,
             portfolio: [
               'https://via.placeholder.com/120',
               'https://via.placeholder.com/120',
             ],
-            description: 'Penjahit terpercaya dengan hasil rapi dan cepat.',
+            description: 'Penjahit profesional dengan hasil rapi dan cepat. Spesialis alterasi jas dan kasual wear.',
           ),
           Tailor(
             id: 'demo-2',
-            name: 'Aldi',
-            shopName: 'Aldi Sewing',
-            city: 'Bandung',
-            specializations: ['Alterasi', 'Jahit Custom'],
+            name: 'Andi',
+            shopName: 'Pak Andi Tailor',
+            city: 'Bandung, Jl. Dago',
+            specializations: ['Alterasi', 'Jahit Custom', 'Batik'],
             rating: 4.6,
             isAvailable: true,
             reviewsCount: 98,
             distanceKm: 2.3,
-            portfolio: ['https://via.placeholder.com/120'],
-            description: 'Spesialis jahit custom dan pemeliharaan pakaian.',
+            locationLat: -6.8951,
+            locationLng: 107.6099,
+            portfolio: [
+              'https://via.placeholder.com/120',
+            ],
+            description: 'Spesialis jahit custom dan pemeliharaan pakaian premium.',
+          ),
+          Tailor(
+            id: 'demo-3',
+            name: 'Rina',
+            shopName: 'Jahit Cepat Mba Rina',
+            city: 'Bandung, Jl. Cihampelas',
+            specializations: ['Permak', 'Kasual', 'Seragam'],
+            rating: 4.9,
+            isAvailable: true,
+            reviewsCount: 167,
+            distanceKm: 2.8,
+            locationLat: -6.8983,
+            locationLng: 107.6066,
+            portfolio: [
+              'https://via.placeholder.com/120',
+              'https://via.placeholder.com/120',
+            ],
+            description: 'Ahli dalam permak cepat dengan kualitas terbaik. Pengalaman 10+ tahun.',
+          ),
+          Tailor(
+            id: 'demo-4',
+            name: 'Ujang',
+            shopName: 'Tailor Mang Ujang',
+            city: 'Bandung, Jl. Braga',
+            specializations: ['Jas', 'Formal', 'Wedding Dress'],
+            rating: 4.7,
+            isAvailable: true,
+            reviewsCount: 203,
+            distanceKm: 3.1,
+            locationLat: -6.9214,
+            locationLng: 107.6079,
+            portfolio: [],
+            description: 'Spesialis gaun pengantin dan pakaian formal berkualitas tinggi.',
+          ),
+          Tailor(
+            id: 'demo-5',
+            name: 'Dewi',
+            shopName: 'Bu Dewi Fashion',
+            city: 'Bandung, Jl. Buah Batu',
+            specializations: ['Kebaya', 'Batik', 'Tradisional'],
+            rating: 4.5,
+            isAvailable: false,
+            reviewsCount: 87,
+            distanceKm: 4.2,
+            locationLat: -6.9401,
+            locationLng: 107.6318,
+            portfolio: [
+              'https://via.placeholder.com/120',
+            ],
+            description: 'Ahli dalam pakaian tradisional dan kebaya dengan desain modern.',
+          ),
+          Tailor(
+            id: 'demo-6',
+            name: 'Hendra',
+            shopName: 'Tailor Pak Hendra',
+            city: 'Bandung, Jl. Setiabudhi',
+            specializations: ['Alterasi', 'Rok', 'Pakaian Wanita'],
+            rating: 4.4,
+            isAvailable: true,
+            reviewsCount: 112,
+            distanceKm: 3.5,
+            locationLat: -6.8711,
+            locationLng: 107.5997,
+            portfolio: [
+              'https://via.placeholder.com/120',
+            ],
+            description: 'Spesialis alterasi rok dan pakaian wanita dengan detail sempurna.',
           ),
         ];
       }
@@ -228,6 +300,107 @@ class ApiService {
     throw Exception(body['message'] ?? 'Gagal memuat detail penjahit');
   }
 
+  static Future<Map<String, dynamic>> fetchAdminSummary() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/admin/summary'),
+      headers: headers(),
+    );
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200 && body['status'] == 'success') {
+      return body['data'] as Map<String, dynamic>;
+    }
+    throw Exception(body['message'] ?? 'Gagal memuat ringkasan admin');
+  }
+
+  static double _parseNumeric(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value.replaceAll(',', '').trim()) ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  static Future<Map<String, dynamic>> estimatePrice({
+    required String category,
+    required String description,
+    required List<String> photos,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/ml/estimate'),
+      headers: headers(),
+      body: jsonEncode({
+        'category': category,
+        'description': description,
+        'photos': photos,
+      }),
+    );
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200 && body['status'] == 'success') {
+      final data = body['data'] as Map<String, dynamic>;
+      return {
+        'id': data['id'],
+        'min_price': _parseNumeric(data['min_price']),
+        'max_price': _parseNumeric(data['max_price']),
+        'confidence': _parseNumeric(data['confidence']),
+        'analysis': data['analysis'],
+      };
+    }
+    throw Exception(body['message'] ?? 'Gagal menghitung estimasi harga');
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchAdminUsers({
+    String query = '',
+    String? role,
+  }) async {
+    final queryParameters = <String, String>{};
+    if (query.isNotEmpty) queryParameters['q'] = query;
+    if (role != null && role.isNotEmpty) queryParameters['role'] = role;
+    final uri = Uri.parse('$baseUrl/admin/users').replace(
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
+    );
+    final response = await http.get(uri, headers: headers());
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200 && body['status'] == 'success') {
+      final rawUsers = body['data']['users'];
+      final list = rawUsers is List
+          ? rawUsers
+          : (rawUsers['data'] as List<dynamic>? ?? []);
+      return list.map((item) => item as Map<String, dynamic>).toList();
+    }
+    throw Exception(body['message'] ?? 'Gagal memuat pengguna');
+  }
+
+  static Future<void> updateAdminUser({
+    required String userId,
+    required Map<String, dynamic> data,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/admin/users/$userId'),
+      headers: headers(),
+      body: jsonEncode(data),
+    );
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200 || body['status'] != 'success') {
+      throw Exception(body['message'] ?? 'Gagal memperbarui pengguna');
+    }
+  }
+
+  static Future<void> disableAdminUser({
+    required String userId,
+  }) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/admin/users/$userId'),
+      headers: headers(),
+    );
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200 || body['status'] != 'success') {
+      throw Exception(body['message'] ?? 'Gagal menonaktifkan pengguna');
+    }
+  }
+
   static Future<Order> createOrder({
     required String tailorId,
     required String category,
@@ -235,24 +408,29 @@ class ApiService {
     required String deadline,
     required String deliveryMode,
     List<String> photos = const [],
+    String? mlEstimationId,
   }) async {
+    final body = {
+      'tailor_id': tailorId,
+      'category': category,
+      'description': description,
+      'photos': photos,
+      'deadline': deadline,
+      'delivery_mode': deliveryMode,
+    };
+    if (mlEstimationId != null && mlEstimationId.isNotEmpty) {
+      body['ml_estimation_id'] = mlEstimationId;
+    }
     final response = await http.post(
       Uri.parse('$baseUrl/orders'),
       headers: headers(),
-      body: jsonEncode({
-        'tailor_id': tailorId,
-        'category': category,
-        'description': description,
-        'photos': photos,
-        'deadline': deadline,
-        'delivery_mode': deliveryMode,
-      }),
+      body: jsonEncode(body),
     );
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode == 201 && body['status'] == 'success') {
-      return Order.fromJson(body['data']['order'] as Map<String, dynamic>);
+    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 201 && responseBody['status'] == 'success') {
+      return Order.fromJson(responseBody['data']['order'] as Map<String, dynamic>);
     }
-    throw Exception(body['message'] ?? 'Gagal membuat pesanan');
+    throw Exception(responseBody['message'] ?? 'Gagal membuat pesanan');
   }
 
   static Future<Order> acceptOrder({
@@ -307,11 +485,15 @@ class ApiService {
     throw Exception(body['message'] ?? 'Gagal memperbarui status pesanan');
   }
 
-  static Future<List<Order>> fetchOrders() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/orders'),
-      headers: headers(),
+  static Future<List<Order>> fetchOrders({String? status}) async {
+    final queryParams = <String, String>{};
+    if (status != null && status.isNotEmpty) {
+      queryParams['status'] = status;
+    }
+    final uri = Uri.parse('$baseUrl/orders').replace(
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
+    final response = await http.get(uri, headers: headers());
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode == 200 && body['status'] == 'success') {
       final rawOrders = body['data']['orders'];
@@ -335,6 +517,25 @@ class ApiService {
       return Order.fromJson(body['data']['order'] as Map<String, dynamic>);
     }
     throw Exception(body['message'] ?? 'Gagal memuat detail pesanan');
+  }
+
+  static Future<void> registerDeviceToken({
+    required String deviceToken,
+  }) async {
+    final response = await http.patch(
+      Uri.parse('$baseUrl/profile/device-token'),
+      headers: headers(),
+      body: jsonEncode({'device_token': deviceToken}),
+    );
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode == 200 && body['status'] == 'success') {
+      return;
+    }
+    throw Exception(body['message'] ?? 'Gagal menyimpan device token');
+  }
+
+  static Future<void> updateDeviceToken(String token) async {
+    return registerDeviceToken(deviceToken: token);
   }
 
   static Future<Review> submitReview({
@@ -417,11 +618,21 @@ class ApiService {
     String? name,
     String? phone,
     String? address,
+    String? shopName,
+    List<String>? specializations,
+    List<String>? portfolio,
+    double? locationLat,
+    double? locationLng,
   }) async {
     final payload = <String, dynamic>{};
     if (name != null) payload['name'] = name;
     if (phone != null) payload['phone'] = phone;
     if (address != null) payload['address'] = address;
+    if (shopName != null) payload['shop_name'] = shopName;
+    if (specializations != null) payload['specializations'] = specializations;
+    if (portfolio != null) payload['portfolio'] = portfolio;
+    if (locationLat != null) payload['location_lat'] = locationLat;
+    if (locationLng != null) payload['location_lng'] = locationLng;
 
     final response = await http.put(
       Uri.parse('$baseUrl/profile'),
