@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-
+﻿import 'package:flutter/material.dart';
 import '../models/tailor.dart';
 import '../services/api_service.dart';
 
-const Color kPrimaryGreen = Color(0xFF1D9E75);
-const Color kBackground = Color(0xFFF0F8F5);
-const Color kCardBg = Color(0xFFFFFFFF);
-const Color kSectionText = Color(0xFF4A5568);
+const Color kNavy = Color(0xFF141E34);
+const Color kGold = Color(0xFFF0B63B);
+const Color kBgLight = Color(0xFFF6F7FB);
+const Color kTextGrey = Color(0xFF9CA3AF);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,15 +16,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Tailor>> _tailorsFuture;
-  final List<String> _categories = [
-    'Semua',
-    'Ubah Ukuran',
-    'Tambal',
-    'Ritsleting',
-    'Sulam',
+  final Set<String> _favoriteIds = {};
+
+  String _selectedLocation = 'Jakarta Selatan';
+
+  static const List<String> _availableLocations = [
+    'Jakarta Selatan',
+    'Jakarta Pusat',
+    'Jakarta Barat',
+    'Jakarta Timur',
+    'Jakarta Utara',
+    'Bandung',
+    'Surabaya',
+    'Yogyakarta',
+    'Bekasi',
+    'Tangerang',
+    'Depok',
   ];
-  String _selectedCategory = 'Semua';
-  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -33,538 +40,639 @@ class _HomeScreenState extends State<HomeScreen> {
     _tailorsFuture = ApiService.fetchTailors();
   }
 
-  Widget _buildSectionTitle(String title, {String? actionLabel}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: Color(0xFF1B3D2D),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        if (actionLabel != null)
-          Text(
-            actionLabel,
-            style: const TextStyle(
-              color: kPrimaryGreen,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-      ],
-    );
+  void _toggleFavorite(String id) {
+    setState(() {
+      if (_favoriteIds.contains(id)) {
+        _favoriteIds.remove(id);
+      } else {
+        _favoriteIds.add(id);
+      }
+    });
   }
 
-  Widget _buildTopCard() {
-    final userName = ApiService.currentUser?.name ?? 'Azis';
-    final initial = userName.isNotEmpty ? userName[0].toUpperCase() : 'A';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [kPrimaryGreen, Color(0xFF259E6D)],
-        ),
-        borderRadius: BorderRadius.circular(28),
+  void _openLocationPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Bandung, Jawa Barat',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          const SizedBox(height: 10),
-          Row(
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Halo, $userName!',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                    const Text(
+                      'Pilih Lokasi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: kNavy,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Mau permak apa hari ini?',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close, color: kTextGrey),
                     ),
                   ],
                 ),
               ),
-              PopupMenuButton<String>(
-                offset: const Offset(0, 10),
-                color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                onSelected: (value) {
-                  switch (value) {
-                    case 'profile':
-                      Navigator.pushNamed(context, '/profile');
-                      break;
-                    case 'orders':
-                      Navigator.pushNamed(context, '/order-history');
-                      break;
-                    case 'favorites':
-                      Navigator.pushNamed(context, '/profile');
-                      break;
-                    case 'notifications':
-                      Navigator.pushNamed(context, '/profile');
-                      break;
-                    case 'settings':
-                      Navigator.pushNamed(context, '/profile');
-                      break;
-                    case 'help':
-                      Navigator.pushNamed(context, '/profile');
-                      break;
-                    case 'logout':
-                      ApiService.logout();
-                      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-                      break;
-                  }
-                },
-                itemBuilder: (context) {
-                  return [
-                    PopupMenuItem<String>(
-                      value: 'header',
-                      enabled: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(userName, style: const TextStyle(color: Color(0xFF1B3D2D), fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text(ApiService.currentUser?.email ?? '-', style: const TextStyle(color: Color(0xFF7A8A95), fontSize: 12)),
-                          const SizedBox(height: 4),
-                          Text(ApiService.currentUser?.role.toUpperCase() ?? '-', style: const TextStyle(color: kPrimaryGreen, fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    const PopupMenuItem<String>(value: 'profile', child: Text('Profil saya', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuItem<String>(value: 'orders', child: Text('Riwayat pesanan', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuItem<String>(value: 'favorites', child: Text('Penjahit favorit', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuItem<String>(value: 'notifications', child: Text('Notifikasi', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuItem<String>(value: 'settings', child: Text('Pengaturan', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuItem<String>(value: 'help', child: Text('Bantuan & FAQ', style: TextStyle(color: Color(0xFF1B3D2D)))),
-                    const PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                      value: 'logout',
-                      child: const Text(
-                        'Keluar',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ];
-                },
-                child: CircleAvatar(
-                  radius: 22,
-                  backgroundColor: kPrimaryGreen,
-                  child: Text(
-                    initial,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
+              const Divider(height: 1),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.5,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.search, color: kPrimaryGreen, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Cari penjahit atau layanan...',
-                    style: TextStyle(color: Colors.grey[700], fontSize: 13),
-                  ),
-                ),
-                Icon(Icons.arrow_forward_ios, color: Colors.grey[500], size: 18),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            height: 40,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
-              separatorBuilder: (context, _) => const SizedBox(width: 10),
-              itemBuilder: (context, index) {
-                final category = _categories[index];
-                final isSelected = category == _selectedCategory;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedCategory = category),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: isSelected ? kPrimaryGreen : Color(0xFFE8F5F0),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      category,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : kPrimaryGreen,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _availableLocations.length,
+                  itemBuilder: (context, index) {
+                    final loc = _availableLocations[index];
+                    final isSelected = loc == _selectedLocation;
+                    return ListTile(
+                      leading: Icon(
+                        Icons.location_on,
+                        color: isSelected ? kGold : kTextGrey,
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromoCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFDCF4E5),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 45,
-            height: 45,
-            decoration: BoxDecoration(
-              color: kPrimaryGreen,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.local_offer, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Diskon 20% untuk pelanggan baru!',
-                  style: TextStyle(
-                    color: Color(0xFF0F2A1D),
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Gunakan kode: TAILORIX20',
-                  style: TextStyle(
-                    color: Color(0xFF1F4F37),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: kPrimaryGreen,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.copy, color: Colors.white, size: 18),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNearestTailorCard(Tailor tailor) {
-    final statusColor = tailor.isAvailable ? kPrimaryGreen : Colors.grey.shade500;
-    final specializationText = tailor.specializations.isNotEmpty
-        ? tailor.specializations.take(3).join(' · ')
-        : tailor.description;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: kCardBg,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8)],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () => Navigator.pushNamed(context, '/tailor-detail', arguments: tailor),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFE8F5F0),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Center(
-                        child: Text(
-                          tailor.shopName.isNotEmpty ? tailor.shopName[0].toUpperCase() : 'T',
-                          style: const TextStyle(
-                            color: kPrimaryGreen,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      title: Text(
+                        loc,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: kNavy,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  tailor.shopName,
-                                  style: const TextStyle(
-                                    color: Color(0xFF1B3D2D),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: statusColor.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  tailor.isAvailable ? 'Buka' : 'Tutup',
-                                  style: TextStyle(
-                                    color: statusColor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            specializationText,
-                            style: const TextStyle(color: Color(0xFF7A8A95), fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle, color: kGold, size: 20)
+                          : null,
+                      onTap: () {
+                        setState(() => _selectedLocation = loc);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.place, size: 14, color: kPrimaryGreen),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${tailor.distanceKm.toStringAsFixed(1)} km',
-                            style: const TextStyle(color: kSectionText, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star, size: 14, color: Color(0xFFFFB703)),
-                          const SizedBox(width: 6),
-                          Text(
-                            tailor.rating.toStringAsFixed(1),
-                            style: const TextStyle(color: kSectionText, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Rp 80.000/item',
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(color: kSectionText, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackground,
-      appBar: AppBar(
-        backgroundColor: kPrimaryGreen,
-        elevation: 0,
-        title: const Text('TailoriX', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        centerTitle: false,
-      ),
+      backgroundColor: kBgLight,
       body: SafeArea(
-        child: FutureBuilder<List<Tailor>>(
-          future: _tailorsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(color: kPrimaryGreen),
-              );
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Gagal memuat penjahit: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              );
-            }
-            final tailors = snapshot.data ?? [];
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTopCard(),
-                  const SizedBox(height: 16),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildTopBar()),
+            SliverToBoxAdapter(child: _buildSearchBar()),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   _buildPromoCard(),
-                  const SizedBox(height: 20),
-                  _buildSectionTitle('Penjahit terdekat', actionLabel: 'Lihat semua'),
-                  const SizedBox(height: 12),
-                  ...tailors.take(3).map(_buildNearestTailorCard),
+                  const SizedBox(height: 10),
+                  _buildPromoDots(),
+                  const SizedBox(height: 16),
+                  _buildActiveOrder(),
                   const SizedBox(height: 22),
-                  _buildSectionTitle('Layanan populer'),
-                  const SizedBox(height: 14),
-                  GridView.count(
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    childAspectRatio: 1.35,
-                    children: const [
-                      _ServiceGridItem(label: 'Ubah ukuran', subtitle: '12 penjahit'),
-                      _ServiceGridItem(label: 'Tambal', subtitle: '8 penjahit'),
-                      _ServiceGridItem(label: 'Ritsleting', subtitle: '6 penjahit'),
-                      _ServiceGridItem(label: 'Sulam', subtitle: '5 penjahit'),
-                    ],
-                  ),
-                  const SizedBox(height: 100),
-                ],
+                  _buildSectionHeader('Penjahit Terdekat', onTap: () {
+                    Navigator.pushNamed(context, '/maps');
+                  }),
+                  const SizedBox(height: 12),
+                  _buildTailorList(),
+                  const SizedBox(height: 22),
+                  _buildSectionHeader('Kategori Jasa'),
+                  const SizedBox(height: 12),
+                  _buildCategoryGrid(),
+                ]),
               ),
-            );
-          },
+            ),
+          ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 4) {
-            Navigator.pushNamed(context, '/profile');
-            return;
-          }
-          setState(() => _currentIndex = index);
-        },
-        backgroundColor: Colors.white,
-        selectedItemColor: kPrimaryGreen,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Peta'),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications_none), label: 'Notifikasi'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
       ),
     );
   }
-}
 
-class _ServiceGridItem extends StatelessWidget {
-  final String label;
-  final String subtitle;
-
-  const _ServiceGridItem({required this.label, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTopBar() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: kCardBg,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8)],
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
+      decoration: const BoxDecoration(color: kNavy),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Color(0xFFE8F5F0),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.check_box_outline_blank, color: kPrimaryGreen, size: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: _openLocationPicker,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: kGold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: kGold.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 14, color: kGold),
+                      const SizedBox(width: 5),
+                      Text(
+                        _selectedLocation,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: kGold,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.keyboard_arrow_down, size: 14, color: kGold),
+                    ],
+                  ),
+                ),
+              ),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: kGold,
+                    child: const Text(
+                      'A',
+                      style: TextStyle(color: kNavy, fontWeight: FontWeight.w600, fontSize: 14),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -1,
+                    right: -1,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF639922),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: kNavy, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF1B3D2D),
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-            ),
+          const SizedBox(height: 16),
+          const Text(
+            'Selamat pagi',
+            style: TextStyle(fontSize: 12, color: Colors.white54),
           ),
-          const Spacer(),
-          Text(
-            subtitle,
-            style: const TextStyle(color: kSectionText, fontSize: 12),
+          const SizedBox(height: 3),
+          Row(
+            children: const [
+              Text(
+                'Halo, Azis ',
+                style: TextStyle(fontSize: 19, color: Colors.white, fontWeight: FontWeight.w500),
+              ),
+              Text('👋', style: TextStyle(fontSize: 19)),
+            ],
           ),
         ],
       ),
     );
   }
+
+  Widget _buildSearchBar() {
+    return Transform.translate(
+      offset: const Offset(0, -8),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: kNavy.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: kTextGrey, size: 20),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Cari penjahit atau layanan...',
+                style: TextStyle(color: Color(0xFFB0B5C0), fontSize: 13),
+              ),
+            ),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: kNavy,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: const Icon(Icons.tune, color: kGold, size: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromoCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [kNavy, Color(0xFF1E2D4D)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: kGold.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.local_offer, color: kGold, size: 18),
+              ),
+              const SizedBox(height: 8),
+              const Text('Promo Spesial',
+                  style: TextStyle(fontSize: 11, color: kGold, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 4),
+              const Text('Diskon 20%',
+                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 3),
+              const Text('Untuk pesanan pertama',
+                  style: TextStyle(fontSize: 12, color: Colors.white54)),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(color: kGold, borderRadius: BorderRadius.circular(12)),
+            child: const Column(
+              children: [
+                Text('20%',
+                    style: TextStyle(
+                        fontSize: 18, color: kNavy, fontWeight: FontWeight.w600, height: 1)),
+                Text('OFF',
+                    style: TextStyle(fontSize: 10, color: kNavy, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromoDots() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 18, height: 4, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: kGold, borderRadius: BorderRadius.circular(2))),
+        Container(width: 5, height: 4, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: const Color(0xFFD8DCE8), borderRadius: BorderRadius.circular(2))),
+        Container(width: 5, height: 4, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: const Color(0xFFD8DCE8), borderRadius: BorderRadius.circular(2))),
+      ],
+    );
+  }
+
+  Widget _buildActiveOrder() {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/orders'),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(color: kNavy.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 2)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: kGold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.checkroom, color: kGold, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Pesanan #TLX-001 sedang diproses',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: kNavy)),
+                  SizedBox(height: 2),
+                  Text('Batik Tailor Bandung · Proses Permak',
+                      style: TextStyle(fontSize: 11, color: kTextGrey)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFC9CDD6)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, {VoidCallback? onTap}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: kNavy)),
+        if (onTap != null)
+          GestureDetector(
+            onTap: onTap,
+            child: const Row(
+              children: [
+                Text('Lihat semua',
+                    style: TextStyle(fontSize: 12, color: kGold, fontWeight: FontWeight.w500)),
+                Icon(Icons.chevron_right, size: 16, color: kGold),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTailorList() {
+    return FutureBuilder<List<Tailor>>(
+      future: _tailorsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+              height: 225, child: Center(child: CircularProgressIndicator(color: kGold)));
+        }
+        if (snapshot.hasError) {
+          return SizedBox(
+              height: 100,
+              child: Center(child: Text('Gagal memuat data: ${snapshot.error}')));
+        }
+        final tailors = snapshot.data ?? [];
+        if (tailors.isEmpty) {
+          return const SizedBox(
+              height: 100, child: Center(child: Text('Belum ada penjahit tersedia')));
+        }
+        return SizedBox(
+          height: 225,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: tailors.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) => _buildTailorCard(tailors[index], index),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTailorCard(Tailor tailor, int index) {
+    final coverColors = [kNavy, const Color(0xFF534AB7), const Color(0xFF993C1D)];
+    final coverColor = coverColors[index % coverColors.length];
+    final isFav = _favoriteIds.contains(tailor.id);
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/tailor-detail', arguments: tailor),
+      child: Container(
+        width: 168,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(color: kNavy.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 2)),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 70,
+              width: double.infinity,
+              color: coverColor,
+              padding: const EdgeInsets.all(8),
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: tailor.isAvailable
+                            ? const Color(0xFFEAF3DE)
+                            : const Color(0xFFF1EFE8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        tailor.isAvailable ? 'Buka' : 'Tutup',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                          color: tailor.isAvailable
+                              ? const Color(0xFF3B6D11)
+                              : const Color(0xFF5F5E5A),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () => _toggleFavorite(tailor.id),
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          size: 13,
+                          color: isFav ? kGold : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tailor.shopName,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: kNavy),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 11, color: kTextGrey),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          tailor.city,
+                          style: const TextStyle(fontSize: 11, color: kTextGrey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 22,
+                    child: Row(
+                      children: tailor.specializations.take(2).map((s) {
+                        return Container(
+                          margin: const EdgeInsets.only(right: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: kBgLight,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: Text(
+                            s,
+                            style: const TextStyle(fontSize: 9, color: Color(0xFF6B7280)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.only(top: 8),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: Color(0xFFF1F2F6), width: 0.5)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.star, size: 11, color: kGold),
+                            const SizedBox(width: 3),
+                            Text('${tailor.rating}',
+                                style: const TextStyle(
+                                    fontSize: 11, fontWeight: FontWeight.w500, color: kNavy)),
+                            const SizedBox(width: 3),
+                            Text('(${tailor.reviewsCount})',
+                                style: const TextStyle(fontSize: 11, color: kTextGrey)),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Rp ${(tailor.estimatedPrice / 1000).toStringAsFixed(0)}rb',
+                              style: const TextStyle(
+                                  fontSize: 11, fontWeight: FontWeight.w500, color: kNavy),
+                            ),
+                            const Text('mulai dari',
+                                style: TextStyle(fontSize: 9, color: kTextGrey)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryGrid() {
+    final categories = [
+      {'title': 'Ubah Ukuran', 'sub': 'Permak baju & celana', 'icon': Icons.open_in_full, 'color': kNavy, 'bg': kNavy.withValues(alpha: 0.06)},
+      {'title': 'Ritsleting', 'sub': 'Ganti & perbaikan', 'icon': Icons.build_outlined, 'color': const Color(0xFF639922), 'bg': const Color(0xFF639922).withValues(alpha: 0.1)},
+      {'title': 'Sulam', 'sub': 'Hiasan & bordir', 'icon': Icons.auto_awesome, 'color': const Color(0xFF534AB7), 'bg': const Color(0xFF534AB7).withValues(alpha: 0.1)},
+      {'title': 'Tambal', 'sub': 'Perbaikan kain', 'icon': Icons.add_circle_outline, 'color': const Color(0xFFD85A30), 'bg': const Color(0xFFD85A30).withValues(alpha: 0.1)},
+    ];
+
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: 2.6,
+      children: categories.map((cat) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(color: kNavy.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 1)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: cat['bg'] as Color,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(cat['icon'] as IconData, color: cat['color'] as Color, size: 17),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(cat['title'] as String,
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500, color: kNavy)),
+                    const SizedBox(height: 1),
+                    Text(cat['sub'] as String,
+                        style: const TextStyle(fontSize: 10, color: kTextGrey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
 }
-
-

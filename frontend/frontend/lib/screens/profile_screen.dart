@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 import '../models/order.dart';
+import '../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -122,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader(user) {
+  Widget _buildHeader(User user) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -146,9 +147,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(user.name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                Text(user.email, style: TextStyle(color: Colors.white.withOpacity(0.85))),
+                Text(user.email, style: TextStyle(color: Colors.white.withValues(alpha: 0.85))),
                 const SizedBox(height: 6),
-                Text(user.phone.isNotEmpty ? user.phone : '-', style: TextStyle(color: Colors.white.withOpacity(0.85))),
+                Text(user.phone.isNotEmpty ? user.phone : '-', style: TextStyle(color: Colors.white.withValues(alpha: 0.85))),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -232,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(order.category, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                Text('Deadline ${order.deadline.day}/${order.deadline.month}/${order.deadline.year}', style: TextStyle(color: Colors.white.withOpacity(0.85))),
+                Text('Deadline ${order.deadline.day}/${order.deadline.month}/${order.deadline.year}', style: TextStyle(color: Colors.white.withValues(alpha: 0.85))),
               ]),
             ),
             const SizedBox(width: 8),

@@ -5,7 +5,11 @@ import 'package:latlong2/latlong.dart';
 import '../models/tailor.dart';
 import '../services/api_service.dart';
 
-const Color kPrimaryGreen = Color(0xFF1D9E75);
+const Color kPrimaryBlue = Color(0xFF141E34);
+const Color kPrimaryGreen = Color(0xFF1A1A2E);
+const Color kAccentGold = Color(0xFFF0B63B);
+const Color kBackgroundLight = Color(0xFFF6F7FB);
+const Color kCardBg = Color(0xFFFFFFFF);
 
 class MapsListScreen extends StatefulWidget {
   const MapsListScreen({super.key});
@@ -20,6 +24,11 @@ class _MapsListScreenState extends State<MapsListScreen> {
   List<Tailor> _tailors = [];
   Tailor? _selectedTailor;
   LatLng? _userLocation;
+  int _selectedViewIndex = 1;
+  String _selectedFilter = 'Semua';
+
+  static const List<String> _viewLabels = ['Daftar', 'Peta'];
+  static const List<String> _filters = ['Semua', 'Terdekat', 'Rating Tinggi', 'Harga Rendah'];
 
   @override
   void initState() {
@@ -30,15 +39,11 @@ class _MapsListScreenState extends State<MapsListScreen> {
 
   Future<void> _getUserLocation() async {
     try {
-      // Note: For web, geolocation requires HTTPS or localhost
-      // This is a placeholder that returns Bandung center for demo
-      // In production, use geolocator or similar plugin
       setState(() {
-        _userLocation = const LatLng(-6.9175, 107.6191); // Bandung center
+        _userLocation = const LatLng(-6.9175, 107.6191);
       });
     } catch (e) {
-      print('Error getting location: $e');
-      // Fallback to Bandung center
+      debugPrint('Error getting location: $e');
       setState(() {
         _userLocation = const LatLng(-6.9175, 107.6191);
       });
@@ -49,7 +54,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
     setState(() => _selectedTailor = tailor);
     _mapController.move(
       LatLng(tailor.locationLat, tailor.locationLng),
-      16,
+      15,
     );
   }
 
@@ -57,6 +62,18 @@ class _MapsListScreenState extends State<MapsListScreen> {
     if (_userLocation != null) {
       _mapController.move(_userLocation!, 15);
     }
+  }
+
+  List<Tailor> get _filteredTailors {
+    final list = [..._tailors];
+    if (_selectedFilter == 'Terdekat') {
+      list.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+    } else if (_selectedFilter == 'Rating Tinggi') {
+      list.sort((b, a) => a.rating.compareTo(b.rating));
+    } else if (_selectedFilter == 'Harga Rendah') {
+      list.sort((a, b) => a.estimatedPrice.compareTo(b.estimatedPrice));
+    }
+    return list;
   }
 
   void _openTailorDetail(Tailor tailor) {
@@ -90,7 +107,6 @@ class _MapsListScreenState extends State<MapsListScreen> {
             return const Center(child: Text('Tidak ada penjahit tersedia'));
           }
 
-          // Default center: Bandung
           final defaultCenter = const LatLng(-6.9175, 107.6191);
 
           return Stack(
@@ -110,7 +126,6 @@ class _MapsListScreenState extends State<MapsListScreen> {
                   ),
                   MarkerLayer(
                     markers: [
-                      // User location marker
                       if (_userLocation != null)
                         Marker(
                           width: 50,
@@ -123,7 +138,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.blue.withOpacity(0.5),
+                                      color: Colors.blue.withValues(alpha: 0.5),
                                       blurRadius: 8,
                                       spreadRadius: 2,
                                     ),
@@ -146,7 +161,6 @@ class _MapsListScreenState extends State<MapsListScreen> {
                             ],
                           ),
                         ),
-                      // Tailor markers
                       ..._tailors.map(
                         (tailor) => Marker(
                           width: 60,
@@ -162,8 +176,8 @@ class _MapsListScreenState extends State<MapsListScreen> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: tailor == _selectedTailor
-                                            ? kPrimaryGreen.withOpacity(0.6)
-                                            : Colors.black.withOpacity(0.2),
+                                            ? kPrimaryGreen.withValues(alpha: 0.6)
+                                            : Colors.black.withValues(alpha: 0.2),
                                         blurRadius: tailor == _selectedTailor ? 12 : 6,
                                         spreadRadius: tailor == _selectedTailor ? 2 : 0,
                                       ),
@@ -173,7 +187,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
                                     radius: 24,
                                     backgroundColor: tailor == _selectedTailor
                                         ? kPrimaryGreen
-                                        : kPrimaryGreen.withOpacity(0.8),
+                                        : kPrimaryGreen.withValues(alpha: 0.8),
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
@@ -225,7 +239,6 @@ class _MapsListScreenState extends State<MapsListScreen> {
                 ],
               ),
 
-              // Tombol "Lokasi Saya" - top right
               Positioned(
                 top: 12,
                 right: 12,
@@ -239,7 +252,6 @@ class _MapsListScreenState extends State<MapsListScreen> {
                 ),
               ),
 
-              // Bottom sheet: Daftar penjahit + Detail tailor terpilih
               Positioned(
                 left: 0,
                 right: 0,
@@ -263,7 +275,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 12,
           ),
         ],
@@ -297,7 +309,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: _tailors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final tailor = _tailors[index];
                 return GestureDetector(
@@ -347,7 +359,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: tailor.isAvailable
-                                ? kPrimaryGreen.withOpacity(0.2)
+                                ? kPrimaryGreen.withValues(alpha: 0.2)
                                 : Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -380,7 +392,7 @@ class _MapsListScreenState extends State<MapsListScreen> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 16,
           ),
         ],
@@ -524,9 +536,9 @@ class _MapsListScreenState extends State<MapsListScreen> {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: kPrimaryGreen.withOpacity(0.15),
+                              color: kPrimaryGreen.withValues(alpha: 0.15),
                               border: Border.all(
-                                color: kPrimaryGreen.withOpacity(0.3),
+                                color: kPrimaryGreen.withValues(alpha: 0.3),
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),

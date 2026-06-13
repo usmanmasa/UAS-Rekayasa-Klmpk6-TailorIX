@@ -2,19 +2,21 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/tailor.dart';
+import '../providers/orders_provider.dart';
 import '../services/api_service.dart';
 
-class OrderFormScreen extends StatefulWidget {
+class OrderFormScreen extends ConsumerStatefulWidget {
   const OrderFormScreen({super.key});
 
   @override
-  State<OrderFormScreen> createState() => _OrderFormScreenState();
+  ConsumerState<OrderFormScreen> createState() => _OrderFormScreenState();
 }
 
-class _OrderFormScreenState extends State<OrderFormScreen> {
+class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
   final _descriptionController = TextEditingController();
   final List<Map<String, dynamic>> _photos = [];
   String _category = 'Ubah Ukuran';
@@ -209,11 +211,26 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
         photos: photos,
         mlEstimationId: _mlEstimationId,
       );
+
       if (!mounted) return;
-      Navigator.pushReplacementNamed(
+
+      // Tambahkan order baru ke provider agar langsung muncul di list
+      ref.read(ordersProvider.notifier).addOrder(order);
+
+      // Tampilkan snackbar sukses
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pesanan berhasil dibuat!'),
+          backgroundColor: Color(0xFF239B56),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Langsung ke halaman Pesanan Saya
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        '/customer-waiting',
-        arguments: order,
+        '/orders',
+        (route) => route.settings.name == '/',
       );
     } catch (error) {
       setState(() => _error = error.toString().replaceAll('Exception: ', ''));
@@ -267,7 +284,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 elevation: 4,
-                shadowColor: Colors.green.withOpacity(0.18),
+                shadowColor: Colors.green.withValues(alpha: 0.18),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
                   child: Column(
@@ -367,7 +384,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
             _buildFormCard(
               title: 'Kategori Jasa',
               child: DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: const InputDecoration(border: InputBorder.none),
                 items: const [
                   'Ubah Ukuran',
@@ -418,7 +435,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.green.shade200.withOpacity(0.25),
+                          color: Colors.green.shade200.withValues(alpha: 0.25),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -507,7 +524,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
             _buildFormCard(
               title: 'Mode Pengiriman',
               child: DropdownButtonFormField<String>(
-                value: _deliveryMode,
+                initialValue: _deliveryMode,
                 decoration: const InputDecoration(border: InputBorder.none),
                 items: const ['Antar ke toko', 'Pickup oleh kurir mitra penjahit']
                     .map(

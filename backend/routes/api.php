@@ -25,13 +25,15 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+        Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
         Route::patch('/profile/device-token', [ProfileController::class, 'updateDeviceToken']);
 
         Route::get('/tailors', [TailorController::class, 'index']);
-        Route::get('/tailors/{id}', [TailorController::class, 'show']);
+        Route::get('/tailors/{tailor}', [TailorController::class, 'show']);
         Route::post('/customers/favorites', [TailorController::class, 'addFavorite']);
-        Route::delete('/customers/favorites/{id}', [TailorController::class, 'removeFavorite']);
+        Route::get('/customers/favorites', [TailorController::class, 'favorites']);
+        Route::delete('/customers/favorites/{favorite}', [TailorController::class, 'removeFavorite']);
 
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'index']);

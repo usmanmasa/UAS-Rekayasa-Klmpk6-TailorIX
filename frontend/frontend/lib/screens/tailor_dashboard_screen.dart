@@ -107,7 +107,7 @@ class _TailorDashboardScreenState extends State<TailorDashboardScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: pendingOrders.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          separatorBuilder: (context, index) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
                             final order = pendingOrders[index];
                             return Card(

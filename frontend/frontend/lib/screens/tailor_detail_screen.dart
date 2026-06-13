@@ -28,7 +28,7 @@ class TailorDetailScreen extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
                     boxShadow: [
                       BoxShadow(
-                        color: kPrimaryGreen.withOpacity(0.2),
+                        color: kPrimaryGreen.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -97,7 +97,7 @@ class TailorDetailScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatCard(title: '${tailor.distanceKm.toStringAsFixed(1)}', subtitle: 'km dari sini'),
+                          _StatCard(title: tailor.distanceKm.toStringAsFixed(1), subtitle: 'km dari sini'),
                           _StatCard(title: '5+', subtitle: 'tahun pengalaman'),
                           _StatCard(title: '200+', subtitle: 'pesanan selesai'),
                         ],
@@ -119,8 +119,8 @@ class TailorDetailScreen extends StatelessWidget {
                         runSpacing: 8,
                         children: tailor.specializations.map((s) => Chip(
                           label: Text(s, style: const TextStyle(color: kPrimaryGreen, fontSize: 12)),
-                          backgroundColor: kPrimaryGreen.withOpacity(0.1),
-                          side: BorderSide(color: kPrimaryGreen.withOpacity(0.3)),
+                          backgroundColor: kPrimaryGreen.withValues(alpha: 0.1),
+                          side: BorderSide(color: kPrimaryGreen.withValues(alpha: 0.3)),
                         )).toList(),
                       ),
                       const SizedBox(height: 24),
@@ -129,7 +129,7 @@ class TailorDetailScreen extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)]),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)]),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -187,7 +187,7 @@ class TailorDetailScreen extends StatelessWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: kPrimaryGreen.withOpacity(0.1),
+                    color: kPrimaryGreen.withValues(alpha: 0.1),
                     blurRadius: 12,
                     offset: const Offset(0, -4),
                   ),
@@ -245,7 +245,7 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.white24, width: 1),
         ),

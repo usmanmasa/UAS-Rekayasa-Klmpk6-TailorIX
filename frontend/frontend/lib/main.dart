@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -36,7 +37,8 @@ Future<void> main() async {
   }
   
   await _initializeFirebaseMessaging();
-  runApp(const TailoriXApp());
+  await ApiService.initialize();
+  runApp(const ProviderScope(child: TailoriXApp()));
 }
 
 @pragma('vm:entry-point')

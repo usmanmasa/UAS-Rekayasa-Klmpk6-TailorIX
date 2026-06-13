@@ -1,16 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../services/api_service.dart';
+import '../../providers/auth_provider.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -37,11 +38,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
     setState(() => _error = null);
     try {
-      await ApiService.register(
-        name,
-        email,
-        phone,
-        password,
+      await ref.read(authProvider.notifier).register(
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
         role: _role,
         address: address.isNotEmpty ? address : null,
         shopName: _role == 'tailor' ? shopName : null,

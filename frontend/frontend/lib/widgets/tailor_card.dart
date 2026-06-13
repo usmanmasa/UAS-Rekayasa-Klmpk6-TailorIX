@@ -16,7 +16,7 @@ class TailorCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 3,
-      shadowColor: kPrimaryGreen.withOpacity(0.15),
+      shadowColor: kPrimaryGreen.withValues(alpha: 0.15),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
@@ -28,7 +28,7 @@ class TailorCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 32,
-                    backgroundColor: kPrimaryGreen.withOpacity(0.1),
+                    backgroundColor: kPrimaryGreen.withValues(alpha: 0.1),
                     child: Text(
                       tailor.name[0].toUpperCase(),
                       style: const TextStyle(
@@ -58,7 +58,7 @@ class TailorCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: tailor.isAvailable ? kPrimaryGreen.withOpacity(0.2) : Colors.grey.shade200,
+                                color: tailor.isAvailable ? kPrimaryGreen.withValues(alpha: 0.2) : Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -99,7 +99,7 @@ class TailorCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       decoration: BoxDecoration(
-                        color: kPrimaryGreen.withOpacity(0.1),
+                        color: kPrimaryGreen.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -108,7 +108,7 @@ class TailorCard extends StatelessWidget {
                           const Icon(Icons.star, color: kPrimaryGreen, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '${tailor.rating.toStringAsFixed(1)}',
+                            tailor.rating.toStringAsFixed(1),
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,

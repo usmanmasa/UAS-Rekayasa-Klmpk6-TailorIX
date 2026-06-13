@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\FavoriteTailor;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class TailorController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = User::query()->where('role', 'tailor')->where('is_verified', true);
 
         if ($request->filled('q')) {
             $keyword = '%' . $request->q . '%';
-            $query->where(function ($sub) use ($keyword) {
+            $query->where(function ($sub) use ($keyword, $request) {
                 $sub->where('name', 'like', $keyword)
                     ->orWhere('shop_name', 'like', $keyword)
                     ->orWhere('city', 'like', $keyword)
@@ -62,22 +63,22 @@ class TailorController extends Controller
         ]);
     }
 
-    public function show(User $id)
+    public function show(User $tailor): JsonResponse
     {
-        $tailor = $id->load(['reviewsAsTailor', 'favoriteTailors']);
+        $tailor->load(['reviewsAsTailor', 'favoriteTailors']);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Detail penjahit berhasil diambil.',
             'data' => [
                 'tailor' => $tailor,
-                'portfolio' => $tailor->portfolio,
+                'portfolio' => $tailor->portfolio ?? [],
                 'reviews' => $tailor->reviewsAsTailor,
             ],
         ]);
     }
 
-    public function addFavorite(Request $request)
+    public function addFavorite(Request $request): JsonResponse
     {
         $request->validate(['tailor_id' => 'required|exists:users,id']);
 
@@ -93,13 +94,27 @@ class TailorController extends Controller
         ], 201);
     }
 
-    public function removeFavorite(FavoriteTailor $id)
+    public function favorites(Request $request): JsonResponse
     {
-        if ($id->customer_id !== request()->user()->id) {
+        $favorites = FavoriteTailor::with('tailor')
+            ->where('customer_id', $request->user()->id)
+            ->get()
+            ->map(fn ($favorite) => $favorite->tailor);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Favorit berhasil diambil.',
+            'data' => ['favorites' => $favorites],
+        ]);
+    }
+
+    public function removeFavorite(Request $request, FavoriteTailor $favorite): JsonResponse
+    {
+        if ($favorite->customer_id !== $request->user()->id) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.', 'data' => null], 403);
         }
 
-        $id->delete();
+        $favorite->delete();
 
         return response()->json([
             'status' => 'success',

@@ -188,7 +188,7 @@ class _TailorOrderConfirmationScreenState extends State<TailorOrderConfirmationS
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: widget.order.photos.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      separatorBuilder: (context, index) => const SizedBox(width: 10),
                       itemBuilder: (context, index) {
                         final photoUrl = widget.order.photos[index];
                         final imageUrl = photoUrl.startsWith('http') ? photoUrl : '${ApiService.baseUrl.replaceFirst('/api/v1', '')}/storage/$photoUrl';

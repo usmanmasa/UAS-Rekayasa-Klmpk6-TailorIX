@@ -1,17 +1,19 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/fcm_service.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   String? _error;
@@ -21,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
     setState(() => _error = null);
     try {
-      await ApiService.login(email, password);
-      
+      await ref.read(authProvider.notifier).login(email: email, password: password);
+
       if (!kIsWeb) {
         final fcmToken = await FcmService.getToken();
         if (fcmToken != null && fcmToken.isNotEmpty) {
@@ -33,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       }
-      
+
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/app');
     } catch (error) {
