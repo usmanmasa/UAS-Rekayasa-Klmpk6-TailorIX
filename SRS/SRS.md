@@ -489,7 +489,6 @@ Bagian ini mendefinisikan kebutuhan spesifik untuk komponen kecerdasan buatan ya
 **Rancangan Database**
 <img width="1162" height="1033" alt="Screenshot 2026-05-01 134203" src="https://github.com/user-attachments/assets/260835b8-3e71-4a7e-b6e2-46a5b518ae44" />
 
-
 **Rancangan Arsitektur Sistem**
 <img width="1600" height="879" alt="rancangan arsitektur sistem" src="https://github.com/user-attachments/assets/145b96b9-66aa-45a2-a41b-dc54ac8a11f7" />
 
