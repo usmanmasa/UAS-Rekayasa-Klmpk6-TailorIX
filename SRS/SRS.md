@@ -505,6 +505,7 @@ Bagian ini mendefinisikan kebutuhan spesifik untuk komponen kecerdasan buatan ya
 <img width="1600" height="1018" alt="classdiagram" src="https://github.com/user-attachments/assets/36f9db90-2c04-4807-a828-ad46884bb681" />
 
 **Sequence Diagram**
+<img width="1600" height="1493" alt="sequencediagram" src="https://github.com/user-attachments/assets/84f0400d-143e-43a7-bcb0-d05d11e6fc21" />
 
 **Component Diagram**
 
