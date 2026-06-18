@@ -502,6 +502,7 @@ Bagian ini mendefinisikan kebutuhan spesifik untuk komponen kecerdasan buatan ya
 <img width="1112" height="865" alt="WhatsApp Image 2026-04-26 at 15 29 31" src="https://github.com/user-attachments/assets/b9d78651-7f26-4c03-80c5-29fa6911bc1b" />
 
 **Class Diagram**
+<img width="1600" height="1018" alt="classdiagram" src="https://github.com/user-attachments/assets/36f9db90-2c04-4807-a828-ad46884bb681" />
 
 **Sequence Diagram**
 
