@@ -9,12 +9,11 @@ April 2025
 ---
 | Nama |
 |------|
-|melvy |
-|khansa |
-|riphan |
-|usman |
-|aziz |
-|denis |
+|melvy anjani herdiyanthi |
+|khansa mufidah salsabila |
+|muhammad abdul azis |
+|usman t. masa |
+|riphan romadlon |
 
 **PROGRAM STUDI SISTEM INFORMASI**
 **FAKULTAS ILMU KOMPUTER DAN SISTEM INFORMASI**
@@ -519,6 +518,8 @@ Bagian ini mendefinisikan kebutuhan spesifik untuk komponen kecerdasan buatan ya
 <img width="1600" height="1173" alt="componentdiagram" src="https://github.com/user-attachments/assets/4a964ae4-e05c-476d-b5da-75f132aba8f4" />
 
 **Deployment Diagram**
+
+<img width="1360" height="1349" alt="deploymentdiagram" src="https://github.com/user-attachments/assets/1de0a561-7636-4eb0-ab97-f4c7d0141e12" />
 
 
 
