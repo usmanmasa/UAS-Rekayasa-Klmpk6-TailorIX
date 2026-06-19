@@ -481,34 +481,45 @@ Bagian ini mendefinisikan kebutuhan spesifik untuk komponen kecerdasan buatan ya
 
 
 **Use Case Diagram**
+
 <img width="842" height="913" alt="use case" src="https://github.com/user-attachments/assets/c8ad23a4-1c8f-4dbd-8bf4-9bf6a64fd852" />
 
 **Activity Diagram**
+
 <img width="714" height="1600" alt="diagram activity" src="https://github.com/user-attachments/assets/afcb8a34-6a92-408d-ab0d-0e62f7165b9b" />
 
 **Rancangan Database**
+
 <img width="1162" height="1033" alt="Screenshot 2026-05-01 134203" src="https://github.com/user-attachments/assets/260835b8-3e71-4a7e-b6e2-46a5b518ae44" />
 
 **Rancangan Arsitektur Sistem**
+
 <img width="1600" height="879" alt="rancangan arsitektur sistem" src="https://github.com/user-attachments/assets/145b96b9-66aa-45a2-a41b-dc54ac8a11f7" />
 
 **Rancangan Arsitektur Teknologi**
+
 <img width="1536" height="929" alt="rancangan arsitektur teknologi" src="https://github.com/user-attachments/assets/de610e9f-2306-4b49-88aa-5dd690cb6870" />
 
 **UI**
+
 <img width="713" height="901" alt="WhatsApp Image 2026-04-26 at 15 29 30" src="https://github.com/user-attachments/assets/ed074ac1-aaa8-4b41-9b67-e0e2107a06ae" />
 <img width="1168" height="680" alt="WhatsApp Image 2026-04-26 at 15 29 30 (1)" src="https://github.com/user-attachments/assets/02eb019c-e8b1-4b68-b8ab-846f8574a24e" />
 <img width="1112" height="865" alt="WhatsApp Image 2026-04-26 at 15 29 31" src="https://github.com/user-attachments/assets/b9d78651-7f26-4c03-80c5-29fa6911bc1b" />
 
 **Class Diagram**
+
 <img width="1600" height="1018" alt="classdiagram" src="https://github.com/user-attachments/assets/36f9db90-2c04-4807-a828-ad46884bb681" />
 
 **Sequence Diagram**
+
 <img width="1600" height="1493" alt="sequencediagram" src="https://github.com/user-attachments/assets/84f0400d-143e-43a7-bcb0-d05d11e6fc21" />
 
 **Component Diagram**
 
+<img width="1600" height="1173" alt="componentdiagram" src="https://github.com/user-attachments/assets/4a964ae4-e05c-476d-b5da-75f132aba8f4" />
+
 **Deployment Diagram**
+
 
 
 ---
