@@ -1,0 +1,31 @@
+{
+    "intelephense.environment.phpVersion": "8.2",
+    "intelephense.stubs": [
+        "apache", "bcmath", "bz2", "calendar", "com_dotnet",
+        "Core", "ctype", "curl", "date", "dba", "dom",
+        "enchant", "exif", "FFI", "fileinfo", "filter",
+        "fpm", "ftp", "gd", "gettext", "gmp", "hash",
+        "iconv", "imap", "intl", "json", "ldap", "libxml",
+        "mbstring", "meta", "mysqli", "oci8", "odbc", "openssl",
+        "pcntl", "pcre", "PDO", "pdo_ibm", "pdo_mysql",
+        "pdo_pgsql", "pdo_sqlite", "pgsql", "Phar", "posix",
+        "pspell", "readline", "Reflection", "session", "shmop",
+        "SimpleXML", "snmp", "soap", "sockets", "sodium",
+        "SPL", "sqlite3", "standard", "superglobals", "sysvmsg",
+        "sysvsem", "sysvshm", "tidy", "tokenizer", "xml",
+        "xmlreader", "xmlrpc", "xmlwriter", "xsl", "Zend OPcache",
+        "zip", "zlib", "wordpress", "phpunit"
+    ],
+    "intelephense.diagnostics.undefinedFunctions": false,
+    "intelephense.diagnostics.undefinedMethods": false,
+    "intelephense.diagnostics.undefinedClassConstants": false,
+    "intelephense.diagnostics.undefinedMagicMethods": false,
+    "intelephense.diagnostics.undefinedProperties": false,
+    "intelephense.format.braceStyle": "psr12",
+    "[php]": {
+        "editor.defaultFormatter": "intelephense.intelephense",
+        "editor.formatOnSave": true
+    },
+    "php.validate.executablePath": "C:\\xampp\\php\\php.exe",
+    "php.validate.run": "onSave"
+}
