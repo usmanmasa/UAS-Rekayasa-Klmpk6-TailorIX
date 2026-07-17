@@ -9,12 +9,11 @@ April 2025
 ---
 | Nama |
 |------|
-|melvy |
-|khansa |
-|riphan |
-|usman |
-|m. azis|
-|denis |
+|melvy anjani |
+|khansa mufidah |
+|riphan romadlon|
+|usman t masa|
+|m. abdul azis|
 
 **PROGRAM STUDI SISTEM INFORMASI**
 **FAKULTAS ILMU KOMPUTER DAN SISTEM INFORMASI**
