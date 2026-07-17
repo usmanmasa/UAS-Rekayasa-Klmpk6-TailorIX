@@ -73,7 +73,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Jika penyimpanan lokal gagal (mis. platform belum siap), abaikan saja —
       // onboarding cukup ditampilkan lagi di kunjungan berikutnya, tidak fatal.
     }
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -221,6 +223,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           ElevatedButton(
                             onPressed: _next,
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(88, 44)),
                             child: Text(isLast ? 'Mulai' : 'Lanjut'),
                           ),
                         ],

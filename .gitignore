@@ -1,0 +1,49 @@
+# TailorLX root .gitignore
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.log
+*.tmp
+*.temp
+*.swp
+*~
+*.bak
+
+# Laravel / PHP
+/backend/vendor/
+/backend/storage/
+/backend/bootstrap/cache/
+/backend/.env
+/backend/.env.*
+/backend/node_modules/
+
+# Flutter / Dart
+/frontend/.dart_tool/
+/frontend/.metadata
+/frontend/build/
+/frontend/.flutter-plugins
+/frontend/.flutter-plugins-dependencies
+/frontend/.pub/
+/frontend/.pub-cache/
+/frontend/.packages
+/frontend/.flutter-plugins-dependencies
+/frontend/.vscode/
+/frontend/.idea/
+/frontend/ios/Flutter/.last_build_id
+/frontend/android/.gradle/
+
+# Other
+*.class
+*.pyc
+*.swp

@@ -20,7 +20,7 @@ class AppTheme {
       secondary: AppColors.gold,
       onSecondary: AppColors.indigoDeep,
       secondaryContainer: AppColors.goldPale,
-      onSecondaryContainer: Color(0xFF8A6314),
+      onSecondaryContainer: AppColors.goldDeep,
       tertiary: AppColors.sage,
       onTertiary: AppColors.white,
       tertiaryContainer: AppColors.sagePale,
@@ -93,7 +93,7 @@ class AppTheme {
 
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: AppColors.goldPale,
-        labelStyle: const TextStyle(color: Color(0xFF8A6314), fontWeight: FontWeight.w700, fontSize: 11.5),
+        labelStyle: const TextStyle(color: AppColors.goldDeep, fontWeight: FontWeight.w700, fontSize: 11.5),
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         shape: const StadiumBorder(),
